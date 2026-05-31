@@ -9,3 +9,4 @@ data/uploads/*
 *.suo
 .site-run.*
 /article-conformite-factur-x-en16931.md
+/.publish-check
