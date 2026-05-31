@@ -5,7 +5,8 @@ COPY src/FacturXValidator/FacturXValidator.csproj src/FacturXValidator/
 RUN dotnet restore src/FacturXValidator/FacturXValidator.csproj
 
 COPY . .
-RUN dotnet publish src/FacturXValidator/FacturXValidator.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish src/FacturXValidator/FacturXValidator.csproj -c Release -o /app/publish \
+	&& test -f /app/publish/wwwroot/_framework/blazor.web.js
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
