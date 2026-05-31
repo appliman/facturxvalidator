@@ -5,5 +5,8 @@
     <File Path="Dockerfile" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FacturXValidator.Tests/FacturXValidator.Tests.csproj" />
+  </Folder>
   <Project Path="src/FacturXValidator/FacturXValidator.csproj" />
 </Solution>

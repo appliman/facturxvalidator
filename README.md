@@ -1,39 +1,12 @@
-﻿# FacturXValidator SaaS
+﻿# FacturXValidator
 
 Application web Blazor Server en .NET 10 pour deposer des factures PDF et realiser une validation indicative Factur-X / EN 16931.
-
-## Arborescence 
-
-```text
-.
-├── FacturXValidatorSaas/
-│   ├── Components/
-│   │   ├── Layout/MainLayout.razor
-│   │   ├── Pages/Home.razor
-│   │   ├── Pages/Privacy.razor
-│   │   ├── Pages/Terms.razor
-│   │   └── Shared/
-│   │       ├── AdsPlaceholder.razor
-│   │       ├── RegulatoryNotice.razor
-│   │       ├── UploadInvoiceComponent.razor
-│   │       └── ValidationReportComponent.razor
-│   ├── Models/
-│   ├── Services/
-│   ├── appsettings.json
-│   └── FacturXValidatorSaas.csproj
-├── data/
-│   ├── schemas/
-│   └── uploads/
-├── Dockerfile
-├── docker-compose.yml
-└── docker-compose.override.yml
-```
 
 ## Demarrage local
 
 ```powershell
-dotnet restore .\FacturXValidatorSaas\FacturXValidatorSaas.csproj
-dotnet run --project .\FacturXValidatorSaas\FacturXValidatorSaas.csproj
+dotnet restore .\FacturXValidatorSaas\FacturXValidator.csproj
+dotnet run --project .\FacturXValidatorSaas\FacturXValidator.csproj
 ```
 
 Par defaut, la configuration pointe vers `/app/data/uploads` et `/app/data/schemas`, ce qui correspond au conteneur Docker. En local Windows, vous pouvez surcharger :
@@ -41,7 +14,7 @@ Par defaut, la configuration pointe vers `/app/data/uploads` et `/app/data/schem
 ```powershell
 $env:TemporaryFiles__UploadPath="data/uploads"
 $env:FacturX__SchemasPath="data/schemas"
-dotnet run --project .\FacturXValidatorSaas\FacturXValidatorSaas.csproj
+dotnet run --project .\FacturXValidatorSaas\FacturXValidator.csproj
 ```
 
 ## Demarrage Docker
