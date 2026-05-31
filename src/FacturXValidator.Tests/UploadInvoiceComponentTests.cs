@@ -44,6 +44,7 @@ public sealed class UploadInvoiceComponentTests
         component.WaitForAssertion(() =>
         {
             Assert.HasCount(2, fileStorage.StoredFiles);
+            Assert.HasCount(2, fileStorage.DeletedFiles);
             Assert.HasCount(2, validationService.ValidatedFiles);
             Assert.Contains("facture-conforme.pdf", component.Markup);
             Assert.Contains("facture-non-conforme.pdf", component.Markup);

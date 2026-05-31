@@ -1,4 +1,4 @@
-name: Publish container image
+﻿name: Publish container image
 
 on:
   release:
@@ -66,6 +66,6 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

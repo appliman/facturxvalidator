@@ -84,6 +84,18 @@ a {
     color: var(--teal);
 }
 
+.github-link {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+.github-link svg {
+    fill: currentColor;
+    height: 1.15rem;
+    width: 1.15rem;
+}
+
 .app-main {
     min-height: calc(100vh - 136px);
 }

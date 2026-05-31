@@ -118,9 +118,11 @@
 
         foreach (var browserFile in selectedFiles)
         {
+            StoredFile? storedFile = null;
+
             try
             {
-                var storedFile = await FileStorage.StoreAsync(browserFile, timeout.Token);
+                storedFile = await FileStorage.StoreAsync(browserFile, timeout.Token);
                 var report = await ValidationService.ValidateAsync(storedFile, timeout.Token);
                 reports.Add(report);
             }
@@ -132,6 +134,13 @@
             {
                 Logger.LogError(ex, "Unexpected upload or validation failure.");
                 uploadErrors.Add($"{browserFile.Name}: une erreur technique est survenue pendant l'analyse.");
+            }
+            finally
+            {
+                if (storedFile is not null)
+                {
+                    await FileStorage.DeleteAsync(storedFile, CancellationToken.None);
+                }
             }
         }
 

@@ -60,6 +60,29 @@ public sealed class LocalTemporaryFileStorageService(
         };
     }
 
+    public Task DeleteAsync(StoredFile file, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var uploadRoot = ResolveUploadRoot();
+        var path = EnsurePathInsideRoot(uploadRoot, file.FullPath);
+
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                logger.LogInformation("Deleted temporary upload {ServerFileName}.", file.ServerFileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Unable to delete temporary upload {ServerFileName}.", file.ServerFileName);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private string ResolveUploadRoot()
     {
         return Path.GetFullPath(temporaryFileOptions.Value.UploadPath);

@@ -8,6 +8,8 @@ internal sealed class CapturingFileStorageService : IFileStorageService
 {
     public List<StoredFile> StoredFiles { get; } = [];
 
+    public List<StoredFile> DeletedFiles { get; } = [];
+
     public async Task<StoredFile> StoreAsync(IBrowserFile file, CancellationToken cancellationToken)
     {
         Assert.IsTrue(file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase));
@@ -28,5 +30,11 @@ internal sealed class CapturingFileStorageService : IFileStorageService
 
         StoredFiles.Add(storedFile);
         return storedFile;
+    }
+
+    public Task DeleteAsync(StoredFile file, CancellationToken cancellationToken)
+    {
+        DeletedFiles.Add(file);
+        return Task.CompletedTask;
     }
 }
