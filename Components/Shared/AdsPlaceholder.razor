@@ -1,0 +1,20 @@
+@inject IOptions<AdsOptions> Ads
+
+@if (Ads.Value.Enabled && !string.IsNullOrWhiteSpace(Ads.Value.ClientId) && !string.IsNullOrWhiteSpace(Ads.Value.SlotId))
+{
+    <div class="ads-box">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=@Ads.Value.ClientId" crossorigin="anonymous"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="@Ads.Value.ClientId"
+             data-ad-slot="@Ads.Value.SlotId"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+}
+else
+{
+    <aside class="ads-box ads-box-placeholder">
+        <span>Emplacement publicitaire</span>
+    </aside>
+}

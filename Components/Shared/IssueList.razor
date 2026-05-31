@@ -1,0 +1,27 @@
+<div class="issue-list">
+    <h3>@Title</h3>
+    @if (Issues.Count == 0)
+    {
+        <p class="empty-issues">@EmptyText</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var issue in Issues)
+            {
+                <li>@issue.Message</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public IReadOnlyList<ValidationIssue> Issues { get; set; } = [];
+
+    [Parameter]
+    public string EmptyText { get; set; } = string.Empty;
+}

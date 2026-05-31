@@ -1,0 +1,150 @@
+@inject IFileStorageService FileStorage
+@inject IFacturXValidationService ValidationService
+@inject IOptions<InvoiceUploadOptions> UploadOptions
+@inject ILogger<UploadInvoiceComponent> Logger
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="upload-card">
+    <div class="upload-card-header">
+        <div>
+            <p class="eyebrow">Analyse PDF</p>
+            <h2>Deposer vos factures</h2>
+        </div>
+        <span class="limit-pill">@UploadOptions.Value.MaxFilesPerBatch fichiers max - @UploadOptions.Value.MaxFileSizeMb Mo/fichier</span>
+    </div>
+
+    <label id="@dropZoneId" class="drop-zone" for="@inputFileId">
+        <span class="pdf-icon">PDF</span>
+        <span class="drop-title">Glissez-deposez ou selectionnez des factures PDF</span>
+        <span class="drop-help">Extensions acceptees : .pdf. Validation serveur obligatoire de la signature PDF et du Content-Type.</span>
+        <InputFile id="@inputFileId" class="file-input" OnChange="HandleFilesAsync" multiple accept=".pdf,application/pdf" disabled="@isProcessing" />
+    </label>
+
+    <div class="upload-actions">
+        <button class="btn btn-primary btn-lg" type="button" disabled="@(!selectedFiles.Any() || isProcessing)" @onclick="AnalyzeSelectedFilesAsync">
+            @if (isProcessing)
+            {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                <span>Analyse en cours...</span>
+            }
+            else
+            {
+                <span>Analyser les factures</span>
+            }
+        </button>
+        @if (selectedFiles.Any())
+        {
+            <span class="selected-count">@selectedFiles.Count fichier(s) pret(s) pour analyse</span>
+        }
+    </div>
+
+    @if (uploadErrors.Any())
+    {
+        <div class="alert alert-danger mt-4" role="alert">
+            <strong>Upload refuse</strong>
+            <ul class="mb-0">
+                @foreach (var error in uploadErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@if (reports.Any())
+{
+    <ValidationReportComponent Reports="reports" />
+}
+
+@code {
+    private IReadOnlyList<IBrowserFile> selectedFiles = [];
+    private readonly List<string> uploadErrors = [];
+    private readonly List<ValidationReport> reports = [];
+    private readonly string inputFileId = $"invoiceUpload-{Guid.NewGuid():N}";
+    private readonly string dropZoneId = $"invoiceDropZone-{Guid.NewGuid():N}";
+    private IJSObjectReference? dropZoneModule;
+    private bool isProcessing;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        dropZoneModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/uploadDropZone.js");
+        await dropZoneModule.InvokeVoidAsync("initializeUploadDropZone", dropZoneId, inputFileId);
+    }
+
+    private Task HandleFilesAsync(InputFileChangeEventArgs args)
+    {
+        uploadErrors.Clear();
+        reports.Clear();
+
+        try
+        {
+            selectedFiles = args.GetMultipleFiles(UploadOptions.Value.MaxFilesPerBatch);
+        }
+        catch (InvalidOperationException)
+        {
+            selectedFiles = [];
+            uploadErrors.Add($"Le lot depasse la limite configuree de {UploadOptions.Value.MaxFilesPerBatch} fichiers.");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task AnalyzeSelectedFilesAsync()
+    {
+        if (!selectedFiles.Any() || isProcessing)
+        {
+            return;
+        }
+
+        isProcessing = true;
+        uploadErrors.Clear();
+        reports.Clear();
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+
+        foreach (var browserFile in selectedFiles)
+        {
+            try
+            {
+                var storedFile = await FileStorage.StoreAsync(browserFile, timeout.Token);
+                var report = await ValidationService.ValidateAsync(storedFile, timeout.Token);
+                reports.Add(report);
+            }
+            catch (InvalidInvoiceUploadException ex)
+            {
+                uploadErrors.Add($"{browserFile.Name}: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Unexpected upload or validation failure.");
+                uploadErrors.Add($"{browserFile.Name}: une erreur technique est survenue pendant l'analyse.");
+            }
+        }
+
+        isProcessing = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (dropZoneModule is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await dropZoneModule.InvokeVoidAsync("disposeUploadDropZone", dropZoneId);
+            await dropZoneModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

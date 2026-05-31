@@ -1,0 +1,103 @@
+@using System.Globalization
+
+<section class="results-section">
+    <div class="results-header">
+        <div>
+            <p class="eyebrow">Rapports</p>
+            <h2>Resultats de validation</h2>
+        </div>
+        <span>@Reports.Count rapport(s)</span>
+    </div>
+
+    <div class="table-responsive result-table-wrap">
+        <table class="table align-middle result-table">
+            <thead>
+                <tr>
+                    <th>Fichier</th>
+                    <th>Date d'upload</th>
+                    <th>Profil</th>
+                    <th>Statut</th>
+                    <th>Erreurs</th>
+                    <th>Avertissements</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var report in Reports)
+                {
+                    <tr>
+                        <td>@report.FileName</td>
+                        <td>@report.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm", CultureInfo.GetCultureInfo("fr-FR"))</td>
+                        <td>@FormatProfile(report.Metadata.Profile)</td>
+                        <td><span class="@GetBadgeClass(report.Level)">@report.Level</span></td>
+                        <td>@report.Errors.Count</td>
+                        <td>@report.Warnings.Count</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-details">
+        @foreach (var item in Reports.Select((report, index) => new { report, index }))
+        {
+            <details class="report-detail">
+                <summary>
+                    <span>@item.report.FileName</span>
+                    <span class="@GetBadgeClass(item.report.Level)">@item.report.Level</span>
+                </summary>
+
+                <div class="metadata-grid">
+                    <div><strong>XML embarque</strong><span>@(item.report.Metadata.HasEmbeddedXml ? "Oui" : "Non")</span></div>
+                    <div><strong>Nom XML</strong><span>@(item.report.Metadata.EmbeddedXmlFileName ?? "Non detecte")</span></div>
+                    <div><strong>Version</strong><span>@(item.report.Metadata.FacturXVersion ?? "Non detectee")</span></div>
+                    <div><strong>Numero</strong><span>@(item.report.Metadata.InvoiceNumber ?? "Manquant")</span></div>
+                    <div><strong>Date</strong><span>@(item.report.Metadata.InvoiceDate?.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("fr-FR")) ?? "Manquante")</span></div>
+                    <div><strong>Vendeur</strong><span>@(item.report.Metadata.Seller ?? "Manquant")</span></div>
+                    <div><strong>Acheteur</strong><span>@(item.report.Metadata.Buyer ?? "Manquant")</span></div>
+                    <div><strong>Total HT</strong><span>@FormatAmount(item.report.Metadata.TotalWithoutTax, item.report.Metadata.Currency)</span></div>
+                    <div><strong>Total TVA</strong><span>@FormatAmount(item.report.Metadata.TotalTax, item.report.Metadata.Currency)</span></div>
+                    <div><strong>Total TTC</strong><span>@FormatAmount(item.report.Metadata.TotalWithTax, item.report.Metadata.Currency)</span></div>
+                </div>
+
+                <IssueList Title="Erreurs" Issues="item.report.Errors" EmptyText="Aucune erreur critique." />
+                <IssueList Title="Avertissements" Issues="item.report.Warnings" EmptyText="Aucun avertissement." />
+                <IssueList Title="Informations" Issues="item.report.Information" EmptyText="Aucune information supplementaire." />
+            </details>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<ValidationReport> Reports { get; set; } = [];
+
+    private static string GetBadgeClass(string level)
+    {
+        return level switch
+        {
+            "Conforme" => "status-badge status-ok",
+            "Avertissements" => "status-badge status-warning",
+            _ => "status-badge status-error"
+        };
+    }
+
+    private static string FormatProfile(FacturXProfile? profile)
+    {
+        return profile switch
+        {
+            FacturXProfile.Minimum => "MINIMUM",
+            FacturXProfile.BasicWl => "BASIC WL",
+            FacturXProfile.Basic => "BASIC",
+            FacturXProfile.En16931 => "EN16931",
+            FacturXProfile.Extended => "EXTENDED",
+            _ => "Non detecte"
+        };
+    }
+
+    private static string FormatAmount(decimal? value, string? currency)
+    {
+        return value is null
+            ? "Manquant"
+            : $"{value.Value.ToString("0.00", CultureInfo.InvariantCulture)} {currency}".Trim();
+    }
+}

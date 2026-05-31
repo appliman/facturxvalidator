@@ -1,0 +1,42 @@
+@inherits LayoutComponentBase
+
+<header class="app-header">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="brand-mark">FX</span>
+                <span>FacturXValidator</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Ouvrir la navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavigation">
+                <div class="navbar-nav ms-auto">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Accueil</NavLink>
+                    <NavLink class="nav-link" href="methodology">Methodologie</NavLink>
+                    <NavLink class="nav-link" href="privacy">Confidentialite</NavLink>
+                    <NavLink class="nav-link" href="terms">Conditions</NavLink>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="app-main">
+    @Body
+</main>
+
+<footer class="app-footer">
+    <div class="container">
+        <span>FacturXValidator SaaS</span>
+        <span>Validation indicative Factur-X / EN 16931</span>
+    </div>
+</footer>
+
+<div id="blazor-error-ui" data-nosnippet>
+    Une erreur inattendue est survenue.
+    <a href="." class="reload">Recharger</a>
+    <span class="dismiss">x</span>
+</div>

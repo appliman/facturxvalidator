@@ -1,0 +1,205 @@
+@page "/methodology"
+
+<PageTitle>Methodologie de validation</PageTitle>
+
+<section class="content-section">
+    <div class="container">
+        <div class="methodology-header">
+            <p class="eyebrow">Transparence</p>
+            <h1>Ce qui est teste, et comment</h1>
+            <p>
+                Cette page decrit exactement les controles effectues par FacturXValidator SaaS. Le rapport produit est
+                une aide technique indicative : il ne remplace pas une validation officielle complete Factur-X, EN 16931,
+                PDF/A-3, XSD ou Schematron.
+            </p>
+        </div>
+
+        <div class="methodology-grid">
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">1</span>
+                    <div>
+                        <h2>Controle de l'upload</h2>
+                        <span class="methodology-level level-strong">Bloquant</span>
+                    </div>
+                </div>
+                <p>
+                    Avant toute analyse, le serveur verifie que chaque fichier respecte les contraintes configurees.
+                </p>
+                <ul>
+                    <li>Nombre maximum de fichiers par lot via <code>Upload:MaxFilesPerBatch</code>.</li>
+                    <li>Taille maximum par fichier via <code>Upload:MaxFileSizeMb</code>.</li>
+                    <li>Extension obligatoire <code>.pdf</code>.</li>
+                    <li>Content-Type autorise, par defaut <code>application/pdf</code> ou <code>application/x-pdf</code>.</li>
+                    <li>Signature binaire du fichier : les premiers octets doivent commencer par <code>%PDF-</code>.</li>
+                </ul>
+                <p class="methodology-note">
+                    Le nom original n'est jamais utilise pour stocker le fichier. Un nom aleatoire cote serveur est genere.
+                </p>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">2</span>
+                    <div>
+                        <h2>Lecture technique du PDF</h2>
+                        <span class="methodology-level level-strong">Bloquant / indicatif</span>
+                    </div>
+                </div>
+                <p>
+                    Le fichier est ouvert avec la bibliotheque NuGet <code>PDFsharp</code> afin de verifier qu'il est
+                    lisible comme document PDF.
+                </p>
+                <ul>
+                    <li>Si le PDF ne peut pas etre ouvert, le rapport signale une erreur.</li>
+                    <li>Le nombre de pages lisibles est ajoute aux informations du rapport.</li>
+                    <li>La presence d'indices PDF/A-3 est recherchee dans les metadonnees PDF.</li>
+                </ul>
+                <p class="methodology-note warning">
+                    La compatibilite PDF/A-3 est seulement indicative. Une certification PDF/A-3 complete necessite un
+                    validateur specialise.
+                </p>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">3</span>
+                    <div>
+                        <h2>Detection du XML embarque</h2>
+                        <span class="methodology-level level-strong">Bloquant</span>
+                    </div>
+                </div>
+                <p>
+                    Factur-X repose sur un PDF lisible contenant un XML structure. L'application recherche donc un XML
+                    compatible dans le contenu du PDF.
+                </p>
+                <ul>
+                    <li>Recherche des noms usuels : <code>factur-x.xml</code>, <code>zugferd-invoice.xml</code>, <code>xrechnung.xml</code>.</li>
+                    <li>Recherche d'un document XML contenant <code>CrossIndustryInvoice</code>.</li>
+                    <li>Lecture du contenu brut et des streams PDF compresses en <code>FlateDecode</code>.</li>
+                    <li>Signalement si le nom du fichier XML n'est pas confirme ou differe de <code>factur-x.xml</code>.</li>
+                </ul>
+                <p class="methodology-note warning">
+                    Certains PDF peuvent stocker les pieces jointes avec des structures que cette extraction simple ne
+                    couvre pas encore.
+                </p>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">4</span>
+                    <div>
+                        <h2>Parsing XML securise</h2>
+                        <span class="methodology-level level-strong">Bloquant</span>
+                    </div>
+                </div>
+                <p>
+                    Le XML detecte est parse cote serveur avec une configuration restrictive.
+                </p>
+                <ul>
+                    <li>Le XML doit etre bien forme.</li>
+                    <li>Les DTD sont interdites.</li>
+                    <li>Les resolvers externes sont desactives pour eviter les acces reseau ou fichiers non souhaites.</li>
+                    <li>Une limite de taille documentaire est appliquee pendant le parsing.</li>
+                </ul>
+                <p class="methodology-note">
+                    Aucun contenu provenant du PDF ou du XML n'est execute.
+                </p>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">5</span>
+                    <div>
+                        <h2>Syntaxe UN/CEFACT CII</h2>
+                        <span class="methodology-level level-strong">Bloquant</span>
+                    </div>
+                </div>
+                <p>
+                    Le service verifie que le XML ressemble a une facture CII attendue pour Factur-X.
+                </p>
+                <ul>
+                    <li>La racine XML doit etre <code>CrossIndustryInvoice</code>.</li>
+                    <li>L'espace de noms doit correspondre a la famille UN/CEFACT CrossIndustryInvoice.</li>
+                    <li>Le profil Factur-X est detecte si le contexte documentaire contient une indication exploitable.</li>
+                </ul>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">6</span>
+                    <div>
+                        <h2>Champs principaux extraits</h2>
+                        <span class="methodology-level level-strong">Bloquant si absent</span>
+                    </div>
+                </div>
+                <p>
+                    Les champs ci-dessous sont extraits depuis le XML et affiches dans le rapport quand ils sont presents.
+                </p>
+                <ul>
+                    <li>Profil Factur-X : MINIMUM, BASIC WL, BASIC, EN16931 ou EXTENDED.</li>
+                    <li>Numero de facture et date d'emission.</li>
+                    <li>Vendeur et acheteur.</li>
+                    <li>Total HT, total TVA, total TTC et devise.</li>
+                    <li>Lignes de facture pour les profils qui les exigent generalement.</li>
+                </ul>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">7</span>
+                    <div>
+                        <h2>Coherence des montants</h2>
+                        <span class="methodology-level level-strong">Bloquant</span>
+                    </div>
+                </div>
+                <p>
+                    Si les montants HT, TVA et TTC sont presents, l'application applique un controle arithmetique simple.
+                </p>
+                <ul>
+                    <li>Calcul attendu : <code>Total TTC = Total HT + Total TVA</code>.</li>
+                    <li>Tolerance configurable via <code>FacturX:AmountTolerance</code>, par defaut <code>0.02</code>.</li>
+                    <li>Un ecart superieur a la tolerance produit une erreur.</li>
+                </ul>
+                <p class="methodology-note warning">
+                    Ce controle ne remplace pas les regles fiscales detaillees par taux, exonerations, arrondis ou lignes.
+                </p>
+            </article>
+
+            <article class="methodology-card">
+                <div class="methodology-card-header">
+                    <span class="methodology-index">8</span>
+                    <div>
+                        <h2>XSD et Schematron</h2>
+                        <span class="methodology-level level-limited">Point d'extension</span>
+                    </div>
+                </div>
+                <p>
+                    L'architecture prevoit une interface <code>ISchemaValidationService</code> et un dossier
+                    <code>/app/data/schemas</code> pour integrer les schemas officiels.
+                </p>
+                <ul>
+                    <li>Le service actuel signale explicitement que la validation XSD/Schematron complete n'est pas executee.</li>
+                    <li>Le chemin des schemas est configurable via <code>FacturX:SchemasPath</code>.</li>
+                    <li>Une implementation future pourra charger les XSD et les regles Schematron officielles Factur-X / EN 16931.</li>
+                </ul>
+                <p class="methodology-note warning">
+                    Une facture peut donc passer certains controles de base sans etre officiellement conforme.
+                </p>
+            </article>
+        </div>
+
+        <div class="methodology-summary">
+            <h2>Lecture du resultat</h2>
+            <p>
+                <strong>Conforme</strong> signifie qu'aucune erreur ni avertissement n'a ete detecte par les controles
+                actuellement implementes. <strong>Avertissements</strong> signifie qu'un point doit etre verifie.
+                <strong>Non conforme</strong> signifie qu'au moins une erreur bloquante a ete detectee.
+            </p>
+            <p>
+                La mention "Conforme" doit toujours etre comprise dans le perimetre de cette page, pas comme une
+                certification fiscale, comptable, juridique ou normative complete.
+            </p>
+        </div>
+    </div>
+</section>
