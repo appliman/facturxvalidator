@@ -1,0 +1,15 @@
+﻿services:
+  web:
+    image: ghcr.io/appliman/facturxvalidator:latest
+    pull_policy: always
+    ports:
+      - "8182:8182"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8182
+      TemporaryFiles__UploadPath: /app/data/uploads
+      TemporaryFiles__RetentionHours: 24
+      Upload__MaxFileSizeMb: 20
+      Upload__MaxFilesPerBatch: 10
+      Ads__Enabled: "false"
+    restart: unless-stopped
