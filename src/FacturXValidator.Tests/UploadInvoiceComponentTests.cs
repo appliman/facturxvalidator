@@ -18,8 +18,8 @@ public sealed class UploadInvoiceComponentTests
         var fileStorage = new CapturingFileStorageService();
         var validationService = new FakeInvoiceValidationService();
 
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
-        var uploadDropZoneModule = context.JSInterop.SetupModule("./js/uploadDropZone.js");
+        context.JSInterop.Mode = JSRuntimeMode.Strict;
+        var uploadDropZoneModule = context.JSInterop.SetupModule("/js/uploadDropZone.js");
         uploadDropZoneModule.SetupVoid("initializeUploadDropZone", _ => true);
         uploadDropZoneModule.SetupVoid("disposeUploadDropZone", _ => true);
 
@@ -37,6 +37,8 @@ public sealed class UploadInvoiceComponentTests
         var invalidInvoice = CreateInvoiceUpload("facture-non-conforme.pdf");
 
         component.FindComponent<InputFile>().UploadFiles(validInvoice, invalidInvoice);
+        Assert.IsFalse(component.Find("button.btn-primary").HasAttribute("disabled"));
+
         component.Find("button.btn-primary").Click();
 
         component.WaitForAssertion(() =>

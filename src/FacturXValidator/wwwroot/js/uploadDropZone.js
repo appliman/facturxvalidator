@@ -40,7 +40,7 @@ export function initializeUploadDropZone(dropZoneId, inputFileId) {
         }
 
         input.files = transfer.files;
-        input.dispatchEvent(new Event("change", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
     };
 
     dropZone.addEventListener("dragenter", showActiveState);

@@ -3,9 +3,9 @@
     build:
       context: .
       dockerfile: Dockerfile
-    image: facturxvalidator-saas:local
+    image: facturxvalidator:local
     ports:
-      - "8080:8080"
+      - "8182:8182"
     volumes:
       - ./data:/app/data
     environment:

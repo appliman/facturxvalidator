@@ -74,8 +74,15 @@
             return;
         }
 
-        dropZoneModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/uploadDropZone.js");
-        await dropZoneModule.InvokeVoidAsync("initializeUploadDropZone", dropZoneId, inputFileId);
+        try
+        {
+            dropZoneModule = await JS.InvokeAsync<IJSObjectReference>("import", "/js/uploadDropZone.js");
+            await dropZoneModule.InvokeVoidAsync("initializeUploadDropZone", dropZoneId, inputFileId);
+        }
+        catch (JSException ex)
+        {
+            Logger.LogWarning(ex, "Unable to initialize the upload drop zone.");
+        }
     }
 
     private Task HandleFilesAsync(InputFileChangeEventArgs args)

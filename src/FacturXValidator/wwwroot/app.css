@@ -89,17 +89,68 @@ a {
 }
 
 .app-footer {
-    background: #f0f3f4;
+    background: #111819;
     border-top: 1px solid var(--line);
-    color: var(--text-muted);
+    color: #d8e0df;
     font-size: 0.95rem;
-    padding: 1.25rem 0;
+    padding: 2rem 0;
 }
 
-.app-footer .container {
+.footer-inner {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
     justify-content: space-between;
+}
+
+.footer-brand {
+    max-width: 500px;
+}
+
+.footer-logo {
+    color: #fff;
+    display: inline-flex;
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 0.45rem;
+    text-decoration: none;
+}
+
+.footer-brand p {
+    color: #b8c4c2;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.footer-contact,
+.footer-links,
+.footer-legal {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+}
+
+.footer-contact,
+.footer-links {
+    font-weight: 700;
+}
+
+.app-footer a {
+    color: #e8f3f1;
+    text-decoration: none;
+}
+
+.app-footer a:hover {
+    color: #8dded1;
+}
+
+.footer-legal {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: #a9b6b4;
+    flex-basis: 100%;
+    font-size: 0.88rem;
+    padding-top: 1rem;
 }
 
 .hero-section {
@@ -528,7 +579,7 @@ code {
 }
 
 @media (max-width: 768px) {
-    .app-footer .container,
+    .footer-inner,
     .upload-card-header,
     .results-header {
         align-items: flex-start;
