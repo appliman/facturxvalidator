@@ -1,7 +1,9 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs
-/bin/Debug/net10.0
-/obj
+bin/
+obj/
+.vs/
+.vscode/
+.playwright-cli/
+data/uploads/*
+!data/uploads/.gitkeep
+*.user
+*.suo

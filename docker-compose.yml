@@ -1,0 +1,18 @@
+﻿services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: facturxvalidator-saas:local
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8182
+      TemporaryFiles__RetentionHours: 24
+      Upload__MaxFileSizeMb: 20
+      Upload__MaxFilesPerBatch: 10
+      Ads__Enabled: "false"
+    restart: unless-stopped

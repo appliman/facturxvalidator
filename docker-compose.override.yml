@@ -1,0 +1,5 @@
+services:
+  web:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Information

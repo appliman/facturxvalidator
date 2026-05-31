@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.override.yml" />
+    <File Path="docker-compose.yml" />
+    <File Path="Dockerfile" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/FacturXValidator/FacturXValidator.csproj" />
+</Solution>
